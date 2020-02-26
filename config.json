@@ -1,0 +1,7 @@
+{
+	"server" : "127.0.0.1",
+	"port" : "9997",
+	"password" : "000",
+	"localserver" : "127.0.0.1",
+	"localport" : "6064"
+}
