@@ -5,12 +5,17 @@ import select
 import socketserver
 import logging
 import json
+
+#import time
+
 from multiprocessing import Process
+#import threading
 
 
 with open('config.json', 'rb') as f:
 	config = json.load(f)
 
+#port = int(config['loaclport'])
 serverdd = config['server']
 port = int(config['port'])
 localport = int(config['localport'])
@@ -34,7 +39,12 @@ class UDPSocks5Server(socketserver.BaseRequestHandler):
 		
 		
 		
-
+		#print(123)
+		#print('======?>', self.request, self.server, self.client_address)
+		#print(self.request)
+		
+		
+		
 		date,sockd  = self.request
 		ccc = self.client_address
 		
@@ -70,10 +80,13 @@ class UDPSocks5Server(socketserver.BaseRequestHandler):
 						break
 				if remote in r:
 					remote_data = remote.recv(1024 * 100)
-
+					#remmote_data_en=remote_data
+					
 					remote_data_en=xorr(remote_data)
 					
-				
+					
+					#print(remote_data)
+					#print(remote_data_en)
 					if len(remote_data) <= 0:
 						break
 					result = send_all(client, remote_data_en)
@@ -112,11 +125,13 @@ class Socks5Server(socketserver.StreamRequestHandler):
 						break
 				if remote in r:
 					remote_data = remote.recv(1024 * 100)
-
+					#remmote_data_en=remote_data
 					
 					remote_data_en=xorr(remote_data)
 					
-	
+					
+					#print(remote_data)
+					#print(remote_data_en)
 					if len(remote_data) <= 0:
 						break
 					result = send_all(client, remote_data_en)
@@ -140,7 +155,13 @@ class Socks5Server(socketserver.StreamRequestHandler):
 		client.send(b'\x05\x00')
 
 		ver,cmd,rsv,atype = client.recv(1),client.recv(1),client.recv(1),client.recv(1)
+		#print(ord(cmd))
+		#if ord(cmd) is not 1:
+			#client.close()
+			#return
 
+        # 判断是否支持atype，目前不支持IPv6
+        # 比特流转化成整型 big表示编码为大端法，
 		if(ord(cmd)==1):
 			if ord(atype) == 1:
 				# IPv4
@@ -148,31 +169,33 @@ class Socks5Server(socketserver.StreamRequestHandler):
 				pp=client.recv(2)
 				remote_addr = socket.inet_ntoa(ip)
 				remote_port = int.from_bytes(pp, 'big')
-
-				con=b'\x09'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+b'\x02'+ip+pp
+				#con=b'\x01'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+b'\x02'+ip+pp
+				con=b'\x01'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+b'\x02'+ip+pp
 			elif ord(atype) == 3:
-
+				# 域名 
+				#ip=client.recv(4)
+				#pp=client.recv(2)
 				len1=client.recv(1)
 				addr_len = int.from_bytes(len1, byteorder = 'big')
 				remote_addr = client.recv(addr_len)
 				print(remote_addr)
 				pp=client.recv(2)
 				remote_port = int.from_bytes(pp, byteorder = 'big')
-
-				con=b'\x09'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+b'\x08'+len1+xorr(remote_addr)+pp
+				#con=b'\x01'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+b'\x01'+len1+encode1(remote_addr,0)+pp
+				con=b'\x01'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+b'\x01'+len1+xorr(remote_addr)+pp
 			else:
-
+				#不支持则关闭连接
 				client.close()
 				return
 			remote = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			logging.info('[+] %s:%dConnect to --> %s:%d' % (self.client_address[0], self.client_address[1], remote_addr, remote_port))
-
+			#remote.connect((remote_addr, remote_port))
 			remote.connect((serverdd,port))
 			print(con)
 			remote.send(con)
 			reply = b"\x05\x00\x00\x01" + socket.inet_aton("0.0.0.0") + (2222).to_bytes(2, byteorder = 'big')
 			client.send(reply)
-			if(remote.recv(2) == b'\x16\x78'):
+			if(remote.recv(2) == b'\x03\x00'):
 				print("handle ok")
 				self.handle_tcp(client,remote)
 		if(ord(cmd)==3):
@@ -180,8 +203,9 @@ class Socks5Server(socketserver.StreamRequestHandler):
 			
 			remotetcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			remotetcp.connect((serverdd,port))
-			remotetcp.send(b'\x04'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode())
+			remotetcp.send(b'\x02'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode())
 			bindport1=remotetcp.recv(1024*100)
+			
 			bindport2=int.from_bytes(bindport1,byteorder='big')
 			remoteudp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 			remoteudp.bind(('0.0.0.0',0))
@@ -259,7 +283,31 @@ def xorr(data):
 		ddd+= (i^key1).to_bytes(length=1,byteorder='big')
 	return	ddd
  
+def encode1(data,m):
+	q=""
+	for i in data:
+		tt=i^9
+		q=q+ chr( tt + 4 )
+		#q=q+chr(i^9)
+	
+	j=q.encode()
+	if( m == 1 ):
+		return q
+	else:
+		return j
 
+
+def decode1(data,m):
+	q = ""
+	for i in data:
+		tt = i -4
+		q=q+ chr( tt ^ 9)
+		#q=q+chr(i^9)
+	j=q.encode()
+	if( m == 1 ):
+		return q
+	else:
+		return j
 def send_all(sock, data):
 
     bytes_sent = 0
