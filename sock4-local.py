@@ -221,7 +221,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 				#print('No! Cheak your password')
 
 			sockudp = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-			sockudp.bind(('127.0.0.1',0))
+			sockudp.bind(('0.0.0.0',0))
 			#print(b'\x05\x00\x00\x01\x00\x00\x00\x00'+sockudp.getsockname()[1].to_bytes(length=2,byteorder='big'))
 			client.send(b'\x05\x00\x00\x01\x00\x00\x00\x00'+sockudp.getsockname()[1].to_bytes(length=2,byteorder='big'))
 			#global tyui
