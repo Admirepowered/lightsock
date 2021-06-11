@@ -213,7 +213,7 @@ int Authentication(SOCKET* CSsocket, char *ReceiveBuf,int DataLen)
 Socks5Req *sq;
 char Method[2]={0x05,0};
 sq=(Socks5Req *)ReceiveBuf;
-////printf("%d,%d,%d,%d,%d\n",sq->Ver,sq->nMethods,sq->Methods[0],sq->Methods[1],sq->Methods[2]);
+///////printf("%d,%d,%d,%d,%d\n",sq->Ver,sq->nMethods,sq->Methods[0],sq->Methods[1],sq->Methods[2]);
 if(sq->Ver!=5)
    return sq->Ver;
 if((sq->Methods[0]==0)||(sq->Methods[0]==2))//00��������֤��01��GSSAPI��02����Ҫ�û�����PASSWORD
@@ -367,19 +367,22 @@ else
 	Server.sin_addr.s_addr = inet_addr(DNS(server1));
 
 
+
 if (inet_addr(HostName) != INADDR_NONE){
 	//printf("IP Mod");
-	ipmod=0;
+	ipmod=2;
 	//Server.sin_addr.s_addr = inet_addr(HostName);
 }
 else
 {
-   if (DNS(HostName) != NULL)
+   //if (DNS(HostName) != NULL)
     //Server.sin_addr.s_addr = inet_addr(DNS(HostName));
 	ipmod=1;
    //else
     //return FALSE;
 }
+
+printf("%s\n%d\n",HostName,ipmod);
 // Create Socket
 *ServerSocket = socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 if (*ServerSocket == INVALID_SOCKET)
@@ -404,13 +407,22 @@ site+=strlen(pass);
 buff[site]=ipmod;
 site++;
 //printf("ipmod=%d",ipmod);
-if(ipmod==0){
+if(ipmod==2){
 	//strcat1(buff,server1,site);
 	int address= inet_addr(HostName);
+
 	buff[site]=address/1%256;
-	buff[site+1]=address/256%256;
-	buff[site+2]=address/65536%256;
-	buff[site+3]=address/16777216%256;
+	buff[site+1]=address/256%256-1;
+	buff[site+2]=address/65536%256-1;
+	buff[site+3]=address/16777216%256-1;
+
+    /**
+    buff[site+3] = address / 1 % 256;
+    buff[site + 2] = address / 256 % 256;
+    buff[site + 1] = address / 65536 % 256;
+    buff[site ] = address / 16777216 % 256;
+
+    **/
 	site+=4;
 
 	buff[site]=RemotePort/256;
@@ -570,10 +582,12 @@ else if(Flag==3) //UDP ASSOCIATE
    sPara.Client.socks=CSsocket[0];
    a=CreateUDPSocket(&SAC,&sPara.Local.socks);
    printf("%d\n",a);
+   SAC.REP = 0x00;
+
    if(!a) //Create a local UDP socket
     SAC.REP=0x01;
-   SAC.Ver=5;
-   SAC.ATYP=1;
+    SAC.Ver=5;
+    SAC.ATYP=1;
 
    //SAC.IPandPort.dwIP= 0x0100007F ;
 
@@ -581,6 +595,8 @@ else if(Flag==3) //UDP ASSOCIATE
     goto exit;
    if(SAC.REP==0x01) // general SOCKS server failure
     goto exit;
+
+
    sPara.Local.IPandPort=SAC.IPandPort; 
    //Copy local UDPsocket data structure to sPara.Local
    ////// Create UDP Transfer thread
@@ -686,8 +702,10 @@ if(argc==5)
 }
 else{
 strcpy(pass,"000");
-strcpy(server1,"127.0.0.1");
+//strcpy(server1,"127.0.0.1");
+strcpy(server1, "52.141.58.35");
 serverport=atoi("9997");
+LisPort = atoi("6064");
 }
 printf("SOCKS v4 && v5 && Http Proxy V1.0 By LZX.\r\nUsage:\n%s ProxyPort Password Server Serverport\n",argv[0]);
 printf("Ready to connect %s:%d password=%s,Listen on:%d ,",server1,serverport,pass,LisPort);
