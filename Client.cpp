@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <errno.h>
 #pragma comment(lib,"ws2_32.lib")
+#pragma warning(disable : 4996)
 #define MAX_HOSTNAME 256
 #define DEFAULTPORT   80
 #define LISTENPORT   1080
@@ -89,11 +90,7 @@ void UDPTransfer(Socks5Para *sPara);
 BOOL ConnectToRemoteHost(SOCKET *ServerSocket,char *HostName,const WORD RemotePort);
 /////////////////////////////////////////////////////
 //---------------------------------------------------------------------------
-xor(char *data,int q){
-int i;
-if(q==0)for (i=0;i<strlen(data);i++)data[i]=data[i]^pass[1];
-else for (i=0;i<q;i++)data[i]=data[i]^pass[1];
-}
+
 void GetHostNameAndPort(char *ReceiveBuf,int datalen,char *HostName,UINT *RemotePort)
 {
 char *fp = ReceiveBuf;
@@ -104,6 +101,11 @@ for(int i = 0;i < datalen && *fp != ':' && *fp != '\0' && *fp != '\r' && *fp != 
     *RemotePort=atoi(fp+1);
    else *RemotePort=DEFAULTPORT;
 }
+}
+void xor1 (char* data, int q) {
+    int i;
+    if (q == 0)for (i = 0; i < strlen(data); i++)data[i] = data[i] ^ pass[1];
+    else for (i = 0; i < q; i++)data[i] = data[i] ^ pass[1];
 }
 //---------------------------------------------------------------------------
 char * GetURLRootPoint(char * ReceiveBuf,int DataLen,int *HostNaneLen)
@@ -166,7 +168,7 @@ DWORD dwThreadID;
 char   HostName[MAX_HOSTNAME] = {0};
 char   ReqInfo1[8],ReqInfo2[248];
 UINT   RemotePort = 0;
-static t=0;
+static int t=0;
 EnterCriticalSection(&cs);
 int n=++t;
 LeaveCriticalSection(&cs);
@@ -214,7 +216,7 @@ sq=(Socks5Req *)ReceiveBuf;
 ////printf("%d,%d,%d,%d,%d\n",sq->Ver,sq->nMethods,sq->Methods[0],sq->Methods[1],sq->Methods[2]);
 if(sq->Ver!=5)
    return sq->Ver;
-if((sq->Methods[0]==0)||(sq->Methods[0]==2))//00£¬ÎÞÐèÈÏÖ¤£»01£¬GSSAPI£»02£¬ÐèÒªÓÃ»§ÃûºÍPASSWORD
+if((sq->Methods[0]==0)||(sq->Methods[0]==2))//00ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½01ï¿½ï¿½GSSAPIï¿½ï¿½02ï¿½ï¿½ï¿½ï¿½Òªï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½PASSWORD
 {
    if(strlen(Username)==0)
     Method[1]=0x00;
@@ -224,7 +226,7 @@ if((sq->Methods[0]==0)||(sq->Methods[0]==2))//00£¬ÎÞÐèÈÏÖ¤£»01£¬GSSAPI£»02£¬ÐèÒª
     return 0;
 }else
    return 0;
-if(Method[1]==0x02)//00£¬ÎÞÐèÈÏÖ¤£»01£¬GSSAPI£»02£¬ÐèÒªÓÃ»§ÃûºÍPASSWORD
+if(Method[1]==0x02)//00ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½01ï¿½ï¿½GSSAPIï¿½ï¿½02ï¿½ï¿½ï¿½ï¿½Òªï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½PASSWORD
 {
    char USER[256];
    char PASS[256];
@@ -305,7 +307,7 @@ if(ATYP==2) //Socks v4 !!!
    memcpy(HostName, inet_ntoa(in.sin_addr),strlen(inet_ntoa(in.sin_addr)));
    return 1;
 }
-//ATYP=0x01´ú±íIP V4µØÖ· 0x03´ú±íÓòÃû;
+//ATYP=0x01ï¿½ï¿½ï¿½ï¿½IP V4ï¿½ï¿½Ö· 0x03ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½;
 if((Socks5Request->Ver==5)&&(ATYP==1))
 {
    IPandPort *IPP=(IPandPort *)&Socks5Request->IP_LEN;
@@ -420,7 +422,7 @@ else{
 buff[site]=strlen(HostName);
 site++;
 //printf("Host=%s",HostName);
-xor(HostName,0);
+xor1(HostName,0);
 strcat1(buff, HostName,site);
 site+=strlen(HostName);
 buff[site]=RemotePort/256;
@@ -459,7 +461,7 @@ if (Socks5Request->Ver != 5) //Invalid Socks 5 Request
    //printf("Invalid Socks 5 Request\n");
    return 0;
 }
-//Get IP Type //0x01==IP V4µØÖ· 0x03´ú±íÓòÃû;0x04´ú±íIP V6µØÖ·;not Support
+//Get IP Type //0x01==IP V4ï¿½ï¿½Ö· 0x03ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½;0x04ï¿½ï¿½ï¿½ï¿½IP V6ï¿½ï¿½Ö·;not Support
 if((Socks5Request->ATYP==1)||(Socks5Request->ATYP==3))
 {
    if(!GetAddressAndPort(ReceiveBuf, DataLen, Socks5Request->ATYP, HostName, RemotePort))
@@ -505,7 +507,7 @@ return 1;
 DWORD WINAPI ZXProxyThread(SOCKET* CSsocket)
 {
 DWORD dwThreadID;
-static t=0;
+static int t=0;
 EnterCriticalSection(&cs);
 int n=++t;
 LeaveCriticalSection(&cs);
@@ -772,7 +774,7 @@ while(1)
 	//SenderAddr.sin_port==UDPServer.sin_port
    if(0==UDPServer.sin_port)//Data come from client
    {
-    //////ÕâÀïÒªÏÈÐÞ¸ÄudpÊý¾Ý±¨Í·
+    //////ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Þ¸ï¿½udpï¿½ï¿½ï¿½Ý±ï¿½Í·
     WORD RemotePort = 0;
     char HostName[MAX_HOSTNAME];
     memset(HostName,0,MAX_HOSTNAME);
@@ -893,7 +895,7 @@ while(1)
          sendcount2=0;
          while(totalread2>0)
          {
-		xor(send_out2+sendcount2,totalread2);
+		xor1(send_out2+sendcount2,totalread2);
 
          send2=send(ClientSocket, send_out2+sendcount2, totalread2, 0);
             if(send2==0)break;
@@ -941,7 +943,7 @@ while(1)
     sendcount1=0;
     while(totalread1>0)
     {
-		xor(send_out1+sendcount1,totalread1);
+		xor1(send_out1+sendcount1,totalread1);
      send1=send(ServerSocket, send_out1+sendcount1, totalread1, 0);
      if(send1==0)break;
      if((send1<0) && (errno!=EINTR))
