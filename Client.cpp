@@ -724,8 +724,7 @@ void main(int argc, char* argv[])
     }
     else {
         strcpy(pass, "000");
-        //strcpy(server1,"127.0.0.1");
-        strcpy(server1, "127.0.0.1");
+        strcpy(server1,"127.0.0.1");
         serverport = atoi("9997");
         LisPort = atoi("6064");
     }
@@ -777,6 +776,7 @@ void UDPTransfer(Socks5Para* sPara)////////////////!!!!!!!!!!!!!!!!
     int site=0;
     int remotelocalport = 0;
     struct sockaddr_in UDPClient, UDPServer;
+    UINT TimeOut = TIMEOUT;
     memset(&UDPClient, 0, sizeof(sockaddr_in));
     memset(&UDPServer, 0, sizeof(sockaddr_in));
     UDPClient.sin_family = AF_INET;
@@ -801,7 +801,9 @@ void UDPTransfer(Socks5Para* sPara)////////////////!!!!!!!!!!!!!!!!
     site++;
     strcat1(buff, pass, site);
     site += strlen(pass);
-    
+    setsockopt(TCPacc, SOL_SOCKET, SO_RCVTIMEO, (char*)&TimeOut, sizeof(TimeOut));
+    setsockopt(sPara->Local.socks, SOL_SOCKET, SO_RCVTIMEO, (char*)&TimeOut, sizeof(TimeOut));
+    setsockopt(sPara->Client.socks, SOL_SOCKET, SO_RCVTIMEO, (char*)&TimeOut, sizeof(TimeOut));
     connect(TCPacc, (const SOCKADDR*)&Server, sizeof(Server));
     
     send(TCPacc,buff,site+1,0);
@@ -831,7 +833,7 @@ void UDPTransfer(Socks5Para* sPara)////////////////!!!!!!!!!!!!!!!!
         FD_ZERO(&readfd);
         FD_SET((UINT)sPara->Local.socks, &readfd);
         FD_SET((UINT)sPara->Client.socks, &readfd);
-        //FD_SET(TCPacc, &readfd);
+        FD_SET(TCPacc, &readfd);
         result = select(sPara->Local.socks + 1, &readfd, NULL, NULL, NULL);
         if ((result < 0) && (errno != EINTR))
         {
@@ -840,8 +842,8 @@ void UDPTransfer(Socks5Para* sPara)////////////////!!!!!!!!!!!!!!!!
         }
         
         
-        //if (FD_ISSET(TCPacc, &readfd))
-        //    break;
+        if (FD_ISSET(TCPacc, &readfd))
+            break;
         if (FD_ISSET(sPara->Client.socks, &readfd))
             break;
         if (FD_ISSET(sPara->Local.socks, &readfd))
