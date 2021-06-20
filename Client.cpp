@@ -218,7 +218,7 @@ int Authentication(SOCKET* CSsocket, char* ReceiveBuf, int DataLen)
     ///////printf("%d,%d,%d,%d,%d\n",sq->Ver,sq->nMethods,sq->Methods[0],sq->Methods[1],sq->Methods[2]);
     if (sq->Ver != 5)
         return sq->Ver;
-    if ((sq->Methods[0] == 0) || (sq->Methods[0] == 2))//00��������֤��01��GSSAPI��02����Ҫ�û�����PASSWORD
+    if ((sq->Methods[0] == 0) || (sq->Methods[0] == 2))
     {
         if (strlen(Username) == 0)
             Method[1] = 0x00;
@@ -229,7 +229,7 @@ int Authentication(SOCKET* CSsocket, char* ReceiveBuf, int DataLen)
     }
     else
         return 0;
-    if (Method[1] == 0x02)//00��������֤��01��GSSAPI��02����Ҫ�û�����PASSWORD
+    if (Method[1] == 0x02)
     {
         char USER[256];
         char PASS[256];
@@ -310,7 +310,7 @@ int GetAddressAndPort(char* ReceiveBuf, int DataLen, int ATYP, char* HostName, W
         memcpy(HostName, inet_ntoa(in.sin_addr), strlen(inet_ntoa(in.sin_addr)));
         return 1;
     }
-    //ATYP=0x01����IP V4��ַ 0x03��������;
+    
     if ((Socks5Request->Ver == 5) && (ATYP == 1))
     {
         IPandPort* IPP = (IPandPort*)&Socks5Request->IP_LEN;
@@ -494,7 +494,7 @@ int TalkWithClient(SOCKET* CSsocket, char* ReceiveBuf, int DataLen, char* HostNa
         //printf("Invalid Socks 5 Request\n");
         return 0;
     }
-    //Get IP Type //0x01==IP V4��ַ 0x03��������;0x04����IP V6��ַ;not Support
+
     if ((Socks5Request->ATYP == 1) || (Socks5Request->ATYP == 3))
     {
         if (!GetAddressAndPort(ReceiveBuf, DataLen, Socks5Request->ATYP, HostName, RemotePort))
