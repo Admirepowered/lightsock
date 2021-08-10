@@ -243,13 +243,13 @@ class Socks5Server(socketserver.StreamRequestHandler):
 							#dateback1=remoteudp.recvfrom(1024*100)
 							#date1=dateback1[0]
 							#sockudp.sendto(,)
-							dateback1=remoteudp.recvfrom(1024*100)
+							dateback1=remoteudp.recvfrom(1024)
 							date1=dateback1[0]
 							backoo=xorr(date1)
 							sockudp.sendto(backoo,user)
 							
 						if i is sockudp:
-							dateback2=sockudp.recvfrom(1024*100)
+							dateback2=sockudp.recvfrom(1024)
 							date2=dateback2[0]
 							user=dateback2[1]
 							data111= xorr(b'\x01'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+bindport1+date2)
