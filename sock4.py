@@ -245,7 +245,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 													break
 											if i is sockudp:
 												print('client->server->web')
-												jibadate,cccs = sockudp.recvfrom(1024 * 100)
+												jibadate,cccs = sockudp.recvfrom(1024)
 												print(jibadate)
 												#copo=jibadate[0]*256+jibadate[1]
 												cogpo = int.from_bytes(jibadate[0:2], 'big')
@@ -288,7 +288,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 												#sockudp.sendto(coop,(backclient,backport))
 											if i is remoteudp:
 												print('web->server->client')
-												udpdateout,lpo = remoteudp.recvfrom(1024 * 100)
+												udpdateout,lpo = remoteudp.recvfrom(1024)
 												udpdateout = b'\x00\x00\x00\x01'+socket.inet_aton(lpo[0])+lpo[1].to_bytes(length=2,byteorder='big',signed=False)+udpdateout
 												
 												
