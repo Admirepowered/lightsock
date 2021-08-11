@@ -113,7 +113,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 						while True:
 								r,w,e = select.select(fds,[],[],5)
 								if client in r:
-										cli_data = client.recv(1024)
+										cli_data = client.recv(128)
 										#cli_data_de = cli_data
 										cli_data_de = xorr(cli_data)
 
@@ -125,7 +125,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 												logging.warn("Failed pipping all data to target!!!")
 												break
 								if remote in r:
-										remote_data = remote.recv(1024)
+										remote_data = remote.recv(128)
 										#remote_data_en = remote_data
 										remote_data_en = xorr(remote_data)
 
