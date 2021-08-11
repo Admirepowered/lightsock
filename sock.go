@@ -44,7 +44,7 @@ func xor(data []byte) []byte {
 }
 
 func Handle_TCP(Remote net.Conn, Local net.Conn) { //处理转发回来的数据
-	var buffer = make([]byte, 1024)
+	var buffer = make([]byte, 128)
 	for {
 		n, err := Remote.Read(buffer)
 		if err != nil {
@@ -131,7 +131,7 @@ func Handle_conn(conn net.Conn) { //这个是在处理客户端会阻塞的代�
 
 		conn.Write([]byte{5, 0, 0, 1, 127, 0, 0, 1, 23, 176})
 		go Handle_TCP(myConn, conn)
-		var buffer = make([]byte, 1024)
+		var buffer = make([]byte, 128)
 		for {
 			n, err := conn.Read(buffer)
 			if err != nil {
