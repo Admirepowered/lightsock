@@ -25,8 +25,6 @@ jobs:
 
     - name: Build darwin-amd64
       run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64  go build -o ./package/main-darwin-amd64 ./sock.go
-    - name: Build darwin-arm
-      run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm  go build -o ./package/main-darwin-arm ./sock.go
     - name: Build darwin-arm64
       run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64  go build -o ./package/main-darwin-arm64 ./sock.go
     - name: Build darwin-386
