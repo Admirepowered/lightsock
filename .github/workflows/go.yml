@@ -23,11 +23,62 @@ jobs:
       run: mkdir ./package
       
       
-    - name: Build Ubuntu64
-      run: go build -o ./package/main-Linux-x64.out ./sock.go
-    - name: Build Windows64
-      run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64  go build -o ./package/main-Windows-x64.exe ./sock.go
-      
+    - name: Build android-arm
+      run: CGO_ENABLED=0 GOOS=android GOARCH=arm  go build -o ./package/main-android-arm ./sock.go
+    - name: Build darwin-amd64
+      run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64  go build -o ./package/main-darwin-amd64 ./sock.go
+    - name: Build darwin-arm
+      run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm  go build -o ./package/main-darwin-arm ./sock.go
+    - name: Build darwin-arm64
+      run: CGO_ENABLED=0 GOOS=darwin GOARCH=arm64  go build -o ./package/main-darwin-arm64 ./sock.go
+    - name: Build darwin-386
+      run: CGO_ENABLED=0 GOOS=darwin GOARCH=386  go build -o ./package/main-darwin-386 ./sock.go
+    - name: Build dragonfly
+      run: CGO_ENABLED=0 GOOS=dragonfly GOARCH=amd64  go build -o ./package/main-dragonfly-amd64 ./sock.go
+    - name: Build freebsd-arm
+      run: CGO_ENABLED=0 GOOS=freebsd GOARCH=arm  go build -o ./package/main-freebsd-arm ./sock.go
+    - name: Build freebsd-amd64
+      run: CGO_ENABLED=0 GOOS=freebsd GOARCH=amd64  go build -o ./package/main-freebsd-amd64 ./sock.go
+    - name: Build freebsd-386
+      run: CGO_ENABLED=0 GOOS=freebsd GOARCH=386  go build -o ./package/main-freebsd-386 ./sock.go
+    - name: Build linux-386
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=386  go build -o ./package/main-linux-386 ./sock.go
+    - name: Build linux-amd64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -o ./package/main-linux-amd64 ./sock.go
+    - name: Build linux-arm
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm  go build -o ./package/main-linux-arm ./sock.go
+    - name: Build linux-arm64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=arm64  go build -o ./package/main-linux-arm64 ./sock.go
+    - name: Build linux-ppc64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=ppc64  go build -o ./package/main-linux-ppc64 ./sock.go
+    - name: Build linux-ppc64le
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=ppc64le  go build -o ./package/main-linux-ppc64le ./sock.go
+    - name: Build linux-mips
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=mips  go build -o ./package/main-linux-mips ./sock.go
+    - name: Build linux-mipsle
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=mipsle  go build -o ./package/main-linux-mipsle ./sock.go
+    - name: Build linux-mips64
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=mips64  go build -o ./package/main-linux-mips64 ./sock.go
+    - name: Build linux-mips64le
+      run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -o ./package/main-linux-mips64le ./sock.go
+    - name: Build openbsd-arm
+      run: CGO_ENABLED=0 GOOS=openbsd GOARCH=arm  go build -o ./package/main-openbsd-arm ./sock.go
+    - name: Build openbsd-amd64
+      run: CGO_ENABLED=0 GOOS=openbsd GOARCH=amd64  go build -o ./package/main-openbsd-amd64 ./sock.go
+    - name: Build openbsd-386
+      run: CGO_ENABLED=0 GOOS=openbsd GOARCH=386  go build -o ./package/main-openbsd-386 ./sock.go
+    - name: Build plan9-amd64
+      run: CGO_ENABLED=0 GOOS=plan9 GOARCH=amd64  go build -o ./package/main-plan9-amd64 ./sock.go
+    - name: Build plan9-386
+      run: CGO_ENABLED=0 GOOS=plan9 GOARCH=386  go build -o ./package/main-plan9-386 ./sock.go
+    - name: Build solaris-amd64
+      run: CGO_ENABLED=0 GOOS=solaris GOARCH=amd64  go build -o ./package/main-solaris-amd64 ./sock.go
+    - name: Build windows-amd64
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64  go build -o ./package/main-windows-amd64.exe ./sock.go
+    - name: Build windows-386
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=386  go build -o ./package/main-windows-386.exe ./sock.go
+    - name: Build windows-arm
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=arm  go build -o ./package/main-windows-arm.exe ./sock.go
 
     - name: Test
       run: go test ./sock.go
