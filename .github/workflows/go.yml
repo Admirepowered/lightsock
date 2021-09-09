@@ -5,11 +5,11 @@ on:
   push:
     branches: [ master ]
     tags:
-      - "v*.*.*"
+      - "v1"
   pull_request:
     branches: [ master ]
     tags:
-      - 'v*'
+      - 'v1'
 
 jobs:
 
@@ -43,7 +43,6 @@ jobs:
         files: |
           sock.7z
         body: |
-          [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
           ## 更新日志
           * 这是 GitHub Actions 自动化部署，更新日志应该很快会手动更新
           
