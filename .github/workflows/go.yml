@@ -4,12 +4,8 @@ name: Go
 on:
   push:
     branches: [ master ]
-    tags:
-      - "v1"
   pull_request:
     branches: [ master ]
-    tags:
-      - 'v1'
 
 jobs:
 
@@ -23,16 +19,24 @@ jobs:
       with:
         go-version: 1.17
 
-    - name: Build
-      run: go build ./sock.go
+    - name: mkdir
+      run: mkdir ./package
+      
+      
+    - name: Build Ubuntu64
+      run: go build -o ./package/main-Linux-x64.out ./sock.go
+    - name: Build Windows64
+      run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64  go build -o ./package/main-Windows-x64.exe ./sock.go
+      
 
     - name: Test
       run: go test ./sock.go
 
 
     - name: Package
+
       run: |
-        7z a -mx9 sock.7z ./sock
+        7z a -mx9 sock.7z ./package/
     - name: Release
       uses: softprops/action-gh-release@v1
       env:
