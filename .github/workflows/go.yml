@@ -24,22 +24,23 @@ jobs:
         go-version: 1.17
 
     - name: Build
-      run: go build -v -o ./sock.exe ./sock.go
+      run: go build ./sock.go
 
     - name: Test
-      run: go test -v ./sock.go
+      run: go test ./sock.go
 
 
     - name: Package
       run: |
-        7z a -mx9 sock.7z ./sock.exe
+        7z a -mx9 sock.7z ./sock
     - name: Release
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
-      if: startsWith(github.ref, 'refs/tags/')
       with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
         files: sock.7z
         draft: false
         body: |
