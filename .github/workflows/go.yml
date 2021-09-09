@@ -90,9 +90,37 @@ jobs:
       with:
         tag_name: ${{ github.ref }}
         release_name: ${{ github.ref }}
-        files: sock.7z
+        files: |
+           sock.7z
+           ./package/main-darwin-amd64
+           ./package/main-darwin-arm64
+           ./package/main-dragonfly-amd64
+           ./package/main-freebsd-arm
+           ./package/main-freebsd-amd64
+           ./package/main-freebsd-386
+           ./package/main-linux-386
+           ./package/main-linux-amd64
+           ./package/main-linux-arm
+           ./package/main-linux-arm64
+           ./package/main-linux-ppc64
+           ./package/main-linux-ppc64le
+           ./package/main-linux-mips
+           ./package/main-linux-mipsle
+           ./package/main-linux-mips64
+           ./package/main-linux-mips64le
+           ./package/main-openbsd-arm
+           ./package/main-openbsd-amd64
+           ./package/main-openbsd-386
+           ./package/main-plan9-amd64
+           ./package/main-plan9-386
+           ./package/main-solaris-amd64
+           ./package/main-windows-amd64.exe
+           ./package/main-windows-386.exe
+           ./package/main-windows-arm.exe
+           
+           
+           
+           
         draft: false
-        body: |
-          ## 更新日志
-          * 这是 GitHub Actions 自动化部署，更新日志应该很快会手动更新
+
           
