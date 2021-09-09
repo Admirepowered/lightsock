@@ -19,7 +19,7 @@ jobs:
         go-version: 1.17
 
     - name: Build
-      run: go build -v ./sock.go
+      run: go build -v ./sock.go -o ./sock.exe
 
     - name: Test
       run: go test -v ./sock.go
@@ -27,7 +27,7 @@ jobs:
 
     - name: Package
       run: |
-        7z a -mx9 sock.7z sock.exe
+        7z a -mx9 sock.7z ./sock.exe
     - name: Release
       uses: softprops/action-gh-release@v1
       env:
