@@ -168,7 +168,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 										tempip = socket.getaddrinfo(yuming, None)
 										remoteport = ord(data[4 + data[1] + data[data[1]+3]:5 + data[1] + data[data[1]+3]])*256+ord(data[5 + data[1] + data[data[1]+3]:6 + data[1] + data[data[1]+3]])
 										print(remoteport)
-										remoteip=tempip[0][4][0]
+										remoteip=tempip[-1][4][0]
 										print(remoteip)
 								else:
 										tempip = data[3 + data[1]:7 + data[1]]
