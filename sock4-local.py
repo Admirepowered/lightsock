@@ -19,13 +19,22 @@ with open('config.json', 'rb') as f:
 serverdd = config['server']
 port = int(config['port'])
 localport = int(config['localport'])
-
 localserver = config['localserver']
+try:
+	sockserver = config['sockserver']
+except:
+	sockserver = ""
 
+try:
+	sock5 = config['sock5']
+except:
+	sock5 = "0"
+print(sock5)
 pss = config['password']
 key1 = int.from_bytes(pss[1].encode(),byteorder='big')
 
-
+if sockserver=="":
+	sockserver=localserver
 
 class UDPSocks5Server(socketserver.BaseRequestHandler):
 
@@ -112,7 +121,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 			while True:
 				r,w,e = select.select(fds,[],[],5)
 				if client in r:
-					cli_data = client.recv(128)
+					cli_data = client.recv(1024)
 					
 					#cli_data_de = cli_data
 					cli_data_de = xorr(cli_data)
@@ -124,7 +133,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 						logging.warn("Failed pipping all data to target!!!")
 						break
 				if remote in r:
-					remote_data = remote.recv(128)
+					remote_data = remote.recv(1024)
 					#remmote_data_en=remote_data
 					
 					remote_data_en=xorr(remote_data)
@@ -151,10 +160,24 @@ class Socks5Server(socketserver.StreamRequestHandler):
 		client = self.request
 		ver,methods = client.recv(1),client.recv(1)
 		methods = client.recv(ord(methods))
-
-		client.send(b'\x05\x00')
+		if sock5=="1":
+			client.send(b'\x05\x02')
+			ver,len2 = client.recv(1),client.recv(1)
+			user = client.recv(ord(len2))
+			len2 = client.recv(1)
+			passwd = client.recv(ord(len2))
+			if user.decode()!=pss or  passwd.decode()!=pss:
+				client.send(b'\x01\x01')
+				client.close()
+				return
+			else:
+				client.send(b'\x01\x00')
+			
+		else:
+			client.send(b'\x05\x00')
 
 		ver,cmd,rsv,atype = client.recv(1),client.recv(1),client.recv(1),client.recv(1)
+		print(ver)
 		#print(ord(cmd))
 		#if ord(cmd) is not 1:
 			#client.close()
@@ -193,7 +216,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 			remote.connect((serverdd,port))
 			print(con)
 			remote.send(con)
-			reply = b"\x05\x00\x00\x01" + socket.inet_aton("0.0.0.0") + (2222).to_bytes(2, byteorder = 'big')
+			reply = b"\x05\x00\x00\x01" + socket.inet_aton(sockserver) + (2222).to_bytes(2, byteorder = 'big')
 			client.send(reply)
 			if(remote.recv(2) == b'\x03\x00'):
 				print("handle ok")
@@ -223,7 +246,7 @@ class Socks5Server(socketserver.StreamRequestHandler):
 			sockudp = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 			sockudp.bind(('0.0.0.0',0))
 			#print(b'\x05\x00\x00\x01\x00\x00\x00\x00'+sockudp.getsockname()[1].to_bytes(length=2,byteorder='big'))
-			client.send(b'\x05\x00\x00\x01\x00\x00\x00\x00'+sockudp.getsockname()[1].to_bytes(length=2,byteorder='big'))
+			client.send(b'\x05\x00\x00\x01'+socket.inet_aton(sockserver)+sockudp.getsockname()[1].to_bytes(length=2,byteorder='big'))
 			#global tyui
 	
 			try:
@@ -243,16 +266,18 @@ class Socks5Server(socketserver.StreamRequestHandler):
 							#dateback1=remoteudp.recvfrom(1024*100)
 							#date1=dateback1[0]
 							#sockudp.sendto(,)
-							dateback1=remoteudp.recvfrom(1024)
+							dateback1=remoteudp.recvfrom(1024*100)
 							date1=dateback1[0]
 							backoo=xorr(date1)
+							print(backoo,end=' In\n')
 							sockudp.sendto(backoo,user)
 							
 						if i is sockudp:
-							dateback2=sockudp.recvfrom(1024)
+							dateback2=sockudp.recvfrom(1024*100)
 							date2=dateback2[0]
 							user=dateback2[1]
 							data111= xorr(b'\x01'+len(pss).to_bytes(length=1,byteorder='big')+pss.encode()+bindport1+date2)
+							print(data111,end=' Out\n')
 							remoteudp.sendto(data111,(serverdd,port))
 							
 							#dateback1=remoteudp.recvfrom(1024*100)
