@@ -3,5 +3,7 @@
 	"port" : "9997",
 	"password" : "000",
 	"localserver" : "127.0.0.1",
+	"sockserver" : "127.0.0.1",
+	"sock5" : "0",
 	"localport" : "6064"
 }
