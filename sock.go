@@ -264,7 +264,11 @@ func udp_handle_server(addr string) { //UDP转发器
 			fmt.Println(ipld)
 			fmt.Println(data2[2+lena], data2[3+lena], lena, data2)
 			fmt.Println(fmt.Sprintf("%d", ipld[0]) + "." + fmt.Sprintf("%d", ipld[1]) + "." + fmt.Sprintf("%d", ipld[2]) + "." + fmt.Sprintf("%d", ipld[3]) + ":" + fmt.Sprintf("%d", portld))
-			addr2, _ := net.ResolveUDPAddr("udp", fmt.Sprintf("%d", ipld[0])+"."+fmt.Sprintf("%d", ipld[1])+"."+fmt.Sprintf("%d", ipld[2])+"."+fmt.Sprintf("%d", ipld[3])+":"+fmt.Sprintf("%d", portld))
+			addr2, err := net.ResolveUDPAddr("udp", fmt.Sprintf("%d", ipld[0])+"."+fmt.Sprintf("%d", ipld[1])+"."+fmt.Sprintf("%d", ipld[2])+"."+fmt.Sprintf("%d", ipld[3])+":"+fmt.Sprintf("%d", portld))
+			if checkError(err) {
+				continue
+			}
+
 			UDPlistener.WriteToUDP(date, addr2)
 			//sockd.sendto(date,(ipld,portld))
 		}
@@ -307,7 +311,7 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 		fmt.Println("TCPmod")
 
 		if string(headerBuf[2:2+headerBuf[1]]) == pss {
-			var myConn *net.TCPConn
+			//var myConn *net.TCPConn
 			//myConn, err1 := net.DialTCP("tcp", nil, tcpAddr)
 			fmt.Println("Password OK")
 			if headerBuf[2+headerBuf[1]] == 1 {
@@ -322,10 +326,32 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				//var addr2 *net.TCPAddr
 				//addr2.IP = addr1.IP
 				//addr2.Port = int(remoteport)
-				addr2, _ := net.ResolveTCPAddr("tcp", string(yuming)+":"+fmt.Sprintf("%d", remoteport))
+				addr2, err := net.ResolveTCPAddr("tcp", string(yuming)+":"+fmt.Sprintf("%d", remoteport))
+				if checkError(err) {
+					return
+				}
 				//typeof(addr1)
-				myConn, _ = net.DialTCP("tcp", nil, addr2)
+				myConn, err := net.DialTCP("tcp", nil, addr2)
+				if checkError(err) {
+					return
+				}
+
 				fmt.Println(yuming, string(yuming), remoteport, addr2.IP)
+				conn.Write([]byte{3, 0})
+
+				go Handle_TCP(myConn, conn)
+				var buffer = make([]byte, 128)
+				for {
+					n, err := conn.Read(buffer)
+					if err != nil {
+						break
+					}
+					buffer = xor(buffer)
+					n, err = myConn.Write(buffer[:n])
+					if err != nil {
+						break
+					}
+				}
 			} else {
 				tempip := headerBuf[3+headerBuf[1] : 7+headerBuf[1]]
 				//var addr1 *net.TCPAddr
@@ -336,25 +362,31 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				//var addr2 *net.TCPAddr
 				//addr2.IP = addr1.IP
 				//addr2.Port = int(remoteport)
-				addr2, _ := net.ResolveTCPAddr("tcp", string(tempip)+":"+fmt.Sprintf("%d", remoteport))
-				myConn, _ = net.DialTCP("tcp", nil, addr2)
+				addr2, err := net.ResolveTCPAddr("tcp", string(tempip)+":"+fmt.Sprintf("%d", remoteport))
+				if checkError(err) {
+					return
+				}
+				myConn, err := net.DialTCP("tcp", nil, addr2)
+				if checkError(err) {
+					return
+				}
 				//net.IPAddr.IP addr1 = tetempip
+				conn.Write([]byte{3, 0})
 
-			}
-			conn.Write([]byte{3, 0})
+				go Handle_TCP(myConn, conn)
+				var buffer = make([]byte, 128)
+				for {
+					n, err := conn.Read(buffer)
+					if err != nil {
+						break
+					}
+					buffer = xor(buffer)
+					n, err = myConn.Write(buffer[:n])
+					if err != nil {
+						break
+					}
+				}
 
-			go Handle_TCP(myConn, conn)
-			var buffer = make([]byte, 128)
-			for {
-				n, err := conn.Read(buffer)
-				if err != nil {
-					break
-				}
-				buffer = xor(buffer)
-				n, err = myConn.Write(buffer[:n])
-				if err != nil {
-					break
-				}
 			}
 
 			//var test *net.TCPAddr
@@ -376,6 +408,9 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				return
 			}
 			_, err = conn.Write([]byte{uint8(UDPlistener.LocalAddr().(*net.UDPAddr).Port >> 8), uint8(UDPlistener.LocalAddr().(*net.UDPAddr).Port)})
+			if checkError(err) {
+				return
+			}
 			fmt.Printf("Server Bind in port:%v", UDPlistener.LocalAddr())
 
 			//tempport := headerBuf[0:2]
@@ -394,8 +429,10 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 					break
 				}
 
-				udpAddr, _ := net.ResolveUDPAddr("udp", serverdd)
-
+				udpAddr, err := net.ResolveUDPAddr("udp", serverdd)
+				if checkError(err) {
+					return
+				}
 				//fmt.Println(addr.IP.String()[0:3])
 				//if addr.Port != udpAddr.Port {
 
@@ -417,7 +454,10 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 					portgg := uint64(udpdatein[4])*256 + uint64(udpdatein[5])
 					udpdatein1 := udpdatein[6:]
 					fmt.Println(ipgg + ":" + fmt.Sprintf("%d", portgg))
-					addr2, _ := net.ResolveUDPAddr("udp", ipgg+":"+fmt.Sprintf("%d", portgg))
+					addr2, err := net.ResolveUDPAddr("udp", ipgg+":"+fmt.Sprintf("%d", portgg))
+					if checkError(err) {
+						return
+					}
 					UDPlistener.WriteToUDP(udpdatein1, addr2)
 
 					//data2 = BytesCombine([]byte{1, uint8(len(pss))}, []byte(pss), tempport, data2)
