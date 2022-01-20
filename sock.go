@@ -362,7 +362,8 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				//var addr2 *net.TCPAddr
 				//addr2.IP = addr1.IP
 				//addr2.Port = int(remoteport)
-				addr2, err := net.ResolveTCPAddr("tcp", string(tempip)+":"+fmt.Sprintf("%d", remoteport))
+				//string(tempip)
+				addr2, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%d", tempip[0])+"."+fmt.Sprintf("%d", tempip[1])+"."+fmt.Sprintf("%d", tempip[2])+"."+fmt.Sprintf("%d", tempip[3])+":"+fmt.Sprintf("%d", remoteport))
 				if checkError(err) {
 					return
 				}
