@@ -376,7 +376,7 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				return
 			}
 			_, err = conn.Write([]byte{uint8(UDPlistener.LocalAddr().(*net.UDPAddr).Port >> 8), uint8(UDPlistener.LocalAddr().(*net.UDPAddr).Port)})
-			fmt.Println("Server Bind in port:%v", UDPlistener.LocalAddr())
+			fmt.Printf("Server Bind in port:%v", UDPlistener.LocalAddr())
 
 			//tempport := headerBuf[0:2]
 			var replayport int
