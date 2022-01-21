@@ -530,7 +530,7 @@ func main() {
 				log.Fatal(err)
 			}
 			go Handle_conn(conn)
-			defer conn.Close()
+			//defer conn.Close()
 		}
 	} else {
 		fmt.Printf("Listen Server in %v ,password set:%v\n", serverdd, pss)
@@ -547,7 +547,7 @@ func main() {
 				log.Fatal(err)
 			}
 			go Handle_conn_server(conn)
-			defer conn.Close()
+			//defer conn.Close()
 		}
 	}
 	//fmt.Print("123")
