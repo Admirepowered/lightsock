@@ -369,10 +369,11 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 					return
 				}
 				myConn, err := net.DialTCP("tcp", nil, addr2)
-				defer myConn.Close()
+
 				if checkError(err) {
 					return
 				}
+				defer myConn.Close()
 				//net.IPAddr.IP addr1 = tetempip
 				conn.Write([]byte{3, 0})
 
