@@ -305,6 +305,7 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 	headerBuf := make([]byte, 128)
 	_, err := conn.Read(headerBuf)
 	if checkError(err) {
+		conn.Close()
 		return
 	}
 	if headerBuf[0] == 1 {
@@ -328,11 +329,13 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				//addr2.Port = int(remoteport)
 				addr2, err := net.ResolveTCPAddr("tcp", string(yuming)+":"+fmt.Sprintf("%d", remoteport))
 				if checkError(err) {
+					conn.Close()
 					return
 				}
 				//typeof(addr1)
 				myConn, err := net.DialTCP("tcp", nil, addr2)
 				if checkError(err) {
+					conn.Close()
 					return
 				}
 
@@ -344,11 +347,15 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				for {
 					n, err := conn.Read(buffer)
 					if err != nil {
+						conn.Close()
+						myConn.Close()
 						break
 					}
 					buffer = xor(buffer)
 					n, err = myConn.Write(buffer[:n])
 					if err != nil {
+						conn.Close()
+						myConn.Close()
 						break
 					}
 				}
@@ -365,10 +372,14 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				//string(tempip)
 				addr2, err := net.ResolveTCPAddr("tcp", fmt.Sprintf("%d", tempip[0])+"."+fmt.Sprintf("%d", tempip[1])+"."+fmt.Sprintf("%d", tempip[2])+"."+fmt.Sprintf("%d", tempip[3])+":"+fmt.Sprintf("%d", remoteport))
 				if checkError(err) {
+					conn.Close()
+
 					return
 				}
 				myConn, err := net.DialTCP("tcp", nil, addr2)
 				if checkError(err) {
+					conn.Close()
+					myConn.Close()
 					return
 				}
 				//net.IPAddr.IP addr1 = tetempip
@@ -379,11 +390,15 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				for {
 					n, err := conn.Read(buffer)
 					if err != nil {
+						conn.Close()
+						myConn.Close()
 						break
 					}
 					buffer = xor(buffer)
 					n, err = myConn.Write(buffer[:n])
 					if err != nil {
+						conn.Close()
+						myConn.Close()
 						break
 					}
 				}
@@ -399,6 +414,7 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 			//}
 
 		}
+		//conn.Close()
 	}
 	if headerBuf[0] == 2 {
 		fmt.Println("UDPmod")
@@ -406,10 +422,12 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 		if string(headerBuf[2:2+headerBuf[1]]) == pss {
 			UDPlistener, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4(0, 0, 0, 0), Port: 0})
 			if checkError(err) {
+				conn.Close()
 				return
 			}
 			_, err = conn.Write([]byte{uint8(UDPlistener.LocalAddr().(*net.UDPAddr).Port >> 8), uint8(UDPlistener.LocalAddr().(*net.UDPAddr).Port)})
 			if checkError(err) {
+				conn.Close()
 				return
 			}
 			fmt.Printf("Server Bind in port:%v", UDPlistener.LocalAddr())
@@ -423,15 +441,22 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 				//读取
 				n, addr, err := UDPlistener.ReadFromUDP(data2)
 				if checkError(err) {
-					continue
+					conn.Close()
+					UDPlistener.Close()
+					break
+					//continue
 				}
 				//fmt.Println("接收的内容是：%v，来自地址：%v，字节数量：%v\n", string(data2[:n]), addr, n)
 				if n == 0 {
+					conn.Close()
+					UDPlistener.Close()
 					break
 				}
 
 				udpAddr, err := net.ResolveUDPAddr("udp", serverdd)
 				if checkError(err) {
+					conn.Close()
+					UDPlistener.Close()
 					return
 				}
 				//fmt.Println(addr.IP.String()[0:3])
@@ -457,6 +482,8 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 					fmt.Println(ipgg + ":" + fmt.Sprintf("%d", portgg))
 					addr2, err := net.ResolveUDPAddr("udp", ipgg+":"+fmt.Sprintf("%d", portgg))
 					if checkError(err) {
+						conn.Close()
+						UDPlistener.Close()
 						return
 					}
 					UDPlistener.WriteToUDP(udpdatein1, addr2)
@@ -468,7 +495,9 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 
 					_, err = UDPlistener.WriteToUDP(data2, udpAddr)
 					if checkError(err) {
-						continue
+						conn.Close()
+						UDPlistener.Close()
+						break
 					}
 
 				} else {
@@ -481,7 +510,9 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 					data2 = xor(udpdateout)
 					_, err = UDPlistener.WriteToUDP(data2[:n], &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1), Port: replayport})
 					if checkError(err) {
-						continue
+						conn.Close()
+						UDPlistener.Close()
+						break
 					}
 				}
 
@@ -489,6 +520,8 @@ func Handle_conn_server(conn net.Conn) { //Server_mod
 
 		}
 	}
+
+	conn.Close()
 
 }
 
