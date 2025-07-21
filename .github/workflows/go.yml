@@ -9,7 +9,8 @@ on:
 
   #pull_request:
     #branches: [ master ]
-
+permissions:
+  contents: write
 jobs:
 
   build:
@@ -18,15 +19,31 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v3
       with:
         go-version: 1.17
 
     - name: mkdir
       run: mkdir ./package
       
+    - name: Install mingw32 cross toolchains
+      run: |
+        MINGW_LLVM_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/20231128/llvm-mingw-20231128-msvcrt-ubuntu-20.04-x86_64.tar.xz"
+        mkdir -p $HOME/mingw-llvm
+        wget $MINGW_LLVM_URL -O $HOME/mingw-llvm/llvm.tar.xz
+        cd $HOME/mingw-llvm
+        tar -xvf llvm.tar.xz --strip-components 1
+    - name: Build lightsock_windows
+      run: |
+        export PATH="$HOME/mingw-llvm/bin:$PATH"
+        ABIS="x86_64 i686 aarch64 armv7"
+          echo "- Compiling lightsock-$i-win.exe"
+        for i in $ABIS; do
+          echo "==> Compiling Client.cpp for $i..."
+          ${i}-w64-mingw32-clang++ Client.cpp -lws2_32 -o lightsock-$i-win.exe
+        done
 
-    - name: Build darwin-amd64
+    - name: Build Go 
       run: |
         CGO_ENABLED=0 GOOS=darwin GOARCH=amd64  go build -o ./package/main-darwin-amd64 ./sock.go
         CGO_ENABLED=0 GOOS=darwin GOARCH=arm64  go build -o ./package/main-darwin-arm64 ./sock.go
@@ -62,32 +79,11 @@ jobs:
 
       run: |
         7z a -mx9 sock.7z ./package/
-    - name: Check out
-      uses: actions/checkout@v3
-    - name: Install mingw32 cross toolchains
-      run: |
-        MINGW_LLVM_URL="https://github.com/mstorsjo/llvm-mingw/releases/download/20231128/llvm-mingw-20231128-msvcrt-ubuntu-20.04-x86_64.tar.xz"
-        mkdir -p $HOME/mingw-llvm
-        wget $MINGW_LLVM_URL -O $HOME/mingw-llvm/llvm.tar.xz
-        cd $HOME/mingw-llvm
-        tar -xvf llvm.tar.xz --strip-components 1
-    - name: Build kptools
-      run: |
-        export PATH="$HOME/mingw-llvm/bin:$PATH"
-        ABIS="x86_64 i686 aarch64 armv7"
-          echo "- Compiling lightsock-$i-win.exe"
-        for i in $ABIS; do
-          echo "==> Compiling Client.cpp for $i..."
-          ${i}-w64-mingw32-clang++ Client.cpp -lws2_32 -o lightsock-$i-win.exe
-        done
 
     - name: Upload build artifact
-      env:
-        SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-      if: ${{ env.SIGNING_KEY != '' }}
       uses: actions/upload-artifact@v4
       with:
-        name: APatch
+        name: lightsock_windows
         path: |
           ./package/main-darwin-amd64
           ./package/main-darwin-arm64
