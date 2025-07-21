@@ -105,39 +105,39 @@ jobs:
         done
 
     - name: Upload build artifact
-        env:
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-        if: ${{ env.SIGNING_KEY != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: APatch
-          path: |
-             ./package/main-darwin-amd64
-             ./package/main-darwin-arm64
-             ./package/main-dragonfly-amd64
-             ./package/main-freebsd-arm
-             ./package/main-freebsd-amd64
-             ./package/main-freebsd-386
-             ./package/main-linux-386
-             ./package/main-linux-amd64
-             ./package/main-linux-arm
-             ./package/main-linux-arm64
-             ./package/main-linux-ppc64
-             ./package/main-linux-ppc64le
-             ./package/main-linux-mips
-             ./package/main-linux-mipsle
-             ./package/main-linux-mips64
-             ./package/main-linux-mips64le
-             ./package/main-openbsd-arm
-             ./package/main-openbsd-amd64
-             ./package/main-openbsd-386
-             ./package/main-plan9-amd64
-             ./package/main-plan9-386
-             ./package/main-solaris-amd64
-             ./package/main-windows-amd64.exe
-             ./package/main-windows-386.exe
-             ./package/main-windows-arm.exe
-             ./lightsock-*-win.exe
+      env:
+        SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+      if: ${{ env.SIGNING_KEY != '' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: APatch
+        path: |
+          ./package/main-darwin-amd64
+          ./package/main-darwin-arm64
+          ./package/main-dragonfly-amd64
+          ./package/main-freebsd-arm
+          ./package/main-freebsd-amd64
+          ./package/main-freebsd-386
+          ./package/main-linux-386
+          ./package/main-linux-amd64
+          ./package/main-linux-arm
+          ./package/main-linux-arm64
+          ./package/main-linux-ppc64
+          ./package/main-linux-ppc64le
+          ./package/main-linux-mips
+          ./package/main-linux-mipsle
+          ./package/main-linux-mips64
+          ./package/main-linux-mips64le
+          ./package/main-openbsd-arm
+          ./package/main-openbsd-amd64
+          ./package/main-openbsd-386
+          ./package/main-plan9-amd64
+          ./package/main-plan9-386
+          ./package/main-solaris-amd64
+          ./package/main-windows-amd64.exe
+          ./package/main-windows-386.exe
+          ./package/main-windows-arm.exe
+          ./lightsock-*-win.exe
 
     - name: Release
       uses: softprops/action-gh-release@v1
