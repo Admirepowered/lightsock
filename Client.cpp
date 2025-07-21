@@ -6,6 +6,7 @@
 #include <errno.h>
 #pragma comment(lib,"ws2_32.lib")
 #pragma warning(disable : 4996)
+#define max(a,b) (((a)>(b))?(a):(b))
 #define MAX_HOSTNAME 256
 #define DEFAULTPORT   80
 #define LISTENPORT   1080
@@ -123,22 +124,22 @@ char* GetURLRootPoint(char* ReceiveBuf, int DataLen, int* HostNaneLen)
 //---------------------------------------------------------------------------
 int CheckRequest(char* ReceiveBuf, int* MethodLength)
 {
-    if (!strnicmp(ReceiveBuf, "GET ", 4))
+    if (!strcmp(ReceiveBuf, "GET"))
     {
         *MethodLength = 4;
         return 1;
     }
-    else if (!strnicmp(ReceiveBuf, "HEAD ", 5)) //Looks like the same with GET
+    else if (!strcmp(ReceiveBuf, "HEAD")) //Looks like the same with GET
     {
         *MethodLength = 5;
         return 2;
     }
-    else if (!strnicmp(ReceiveBuf, "POST ", 5))
+    else if (!strcmp(ReceiveBuf, "POST"))
     {
         *MethodLength = 5;
         return 3;
     }
-    else if (!strnicmp(ReceiveBuf, "CONNECT ", 8))
+    else if (!strcmp(ReceiveBuf, "CONNECT"))
     {
         *MethodLength = 8;
         return 4;
@@ -710,7 +711,7 @@ BOOL StartProxy()
         }
     }
 }
-void main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     LisPort = LISTENPORT;
     if (argc > 1)
@@ -734,6 +735,7 @@ void main(int argc, char* argv[])
     StartProxy();
     WSACleanup();
     DeleteCriticalSection(&cs);
+    return 0;
 }
 ////////////////////////////////
 int UDPSend(SOCKET s, char* buff, int nBufSize, struct sockaddr_in* to, int tolen)
@@ -977,7 +979,7 @@ void TCPTransfer(SOCKET* CSsocket)
 {
     SOCKET ClientSocket = CSsocket[0];
     SOCKET ServerSocket = CSsocket[1];
-    struct timeval timeset;
+    TIMEVAL timeset;
     fd_set readfd, writefd;
     int result, i = 0;
     char read_in1[MAXBUFSIZE], send_out1[MAXBUFSIZE], SenderBuf[MAXBUFSIZE];

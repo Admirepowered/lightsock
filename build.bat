@@ -1,0 +1,1 @@
+gcc .\Client.cpp -lws2_32
