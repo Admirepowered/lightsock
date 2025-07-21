@@ -80,37 +80,19 @@ jobs:
       run: |
         7z a -mx9 sock.7z ./package/
 
-    - name: Upload build artifact
+    - name: Upload windows build artifact
       uses: actions/upload-artifact@v4
       with:
         name: lightsock_windows
         path: |
-          ./package/main-darwin-amd64
-          ./package/main-darwin-arm64
-          ./package/main-dragonfly-amd64
-          ./package/main-freebsd-arm
-          ./package/main-freebsd-amd64
-          ./package/main-freebsd-386
-          ./package/main-linux-386
-          ./package/main-linux-amd64
-          ./package/main-linux-arm
-          ./package/main-linux-arm64
-          ./package/main-linux-ppc64
-          ./package/main-linux-ppc64le
-          ./package/main-linux-mips
-          ./package/main-linux-mipsle
-          ./package/main-linux-mips64
-          ./package/main-linux-mips64le
-          ./package/main-openbsd-arm
-          ./package/main-openbsd-amd64
-          ./package/main-openbsd-386
-          ./package/main-plan9-amd64
-          ./package/main-plan9-386
-          ./package/main-solaris-amd64
-          ./package/main-windows-amd64.exe
-          ./package/main-windows-386.exe
-          ./package/main-windows-arm.exe
           ./lightsock-*-win.exe
+
+    - name: Upload go build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: lightsock_go_package
+        path: |
+          ./package/main-*
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -122,31 +104,7 @@ jobs:
         release_name: ${{ github.tag }}
         files: |
            sock.7z
-           ./package/main-darwin-amd64
-           ./package/main-darwin-arm64
-           ./package/main-dragonfly-amd64
-           ./package/main-freebsd-arm
-           ./package/main-freebsd-amd64
-           ./package/main-freebsd-386
-           ./package/main-linux-386
-           ./package/main-linux-amd64
-           ./package/main-linux-arm
-           ./package/main-linux-arm64
-           ./package/main-linux-ppc64
-           ./package/main-linux-ppc64le
-           ./package/main-linux-mips
-           ./package/main-linux-mipsle
-           ./package/main-linux-mips64
-           ./package/main-linux-mips64le
-           ./package/main-openbsd-arm
-           ./package/main-openbsd-amd64
-           ./package/main-openbsd-386
-           ./package/main-plan9-amd64
-           ./package/main-plan9-386
-           ./package/main-solaris-amd64
-           ./package/main-windows-amd64.exe
-           ./package/main-windows-386.exe
-           ./package/main-windows-arm.exe
+           ./package/main-*
            ./lightsock-*-win.exe
            
            
